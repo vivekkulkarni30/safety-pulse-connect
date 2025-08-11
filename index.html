@@ -1,25 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeGuard - Women's Safety SOS App</title>
-    <meta name="description" content="Personal safety app for women. Instantly alert emergency contacts with your location using our secure SOS button." />
-    <meta name="keywords" content="women safety, emergency alert, SOS app, personal security, location sharing" />
-    <meta name="author" content="SafeGuard" />
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <i class="fas fa-shield-alt header-icon"></i>
+                <h1 class="header-title">SafeGuard</h1>
+            </div>
+            <p class="header-subtitle">
+                Your personal safety companion. Press the emergency button to instantly alert your trusted contacts with your location.
+            </p>
+        </header>
 
-    <meta property="og:title" content="SafeGuard - Women's Safety SOS App" />
-    <meta property="og:description" content="Personal safety app for women. Instantly alert emergency contacts with your location using our secure SOS button." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+        <!-- Emergency Alert Display -->
+        <div id="emergency-alert" class="emergency-alert hidden">
+            <div class="alert-card">
+                <div class="alert-header">
+                    <div class="alert-status">
+                        <i class="fas fa-exclamation-triangle alert-icon"></i>
+                        <div>
+                            <h3 class="alert-title">Emergency Alert Sent</h3>
+                            <p class="alert-time" id="alert-timestamp"></p>
+                        </div>
+                    </div>
+                    <button class="alert-close" onclick="clearAlert()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="alert-body">
+                    <div class="alert-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="alert-location-text">Getting location...</span>
+                    </div>
+                    <div class="alert-contacts">
+                        <h4>Contacts Notified:</h4>
+                        <div id="alert-contacts-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-  </head>
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-button active" onclick="switchTab('emergency')">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Emergency</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('contacts')">
+                <i class="fas fa-users"></i>
+                <span>Contacts</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+        </nav>
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+        <!-- Tab Content -->
+        <main class="tab-content">
+            <!-- Emergency Tab -->
+            <div id="emergency-tab" class="tab-panel active">
+                <div class="emergency-button-container">
+                    <button id="emergency-button" class="emergency-button" onclick="handleEmergencyPress()">
+                        <div class="button-pulse"></div>
+                        <div class="button-content">
+                            <i class="fas fa-exclamation-triangle button-icon"></i>
+                            <span class="button-text">SOS</span>
+                        </div>
+                    </button>
+                    <p class="emergency-instruction">
+                        Press and hold for 3 seconds to send emergency alert
+                    </p>
+                </div>
+
+                <div class="info-grid">
+                    <!-- Location Display -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h3>Current Location</h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="location-status" class="location-status">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span>Getting your location...</span>
+                            </div>
+                            <div id="location-coords" class="location-coords hidden">
+                                <p>Latitude: <span id="lat-value">-</span></p>
+                                <p>Longitude: <span id="lng-value">-</span></p>
+                                <a id="maps-link" href="#" target="_blank" class="maps-link">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    View on Google Maps
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ready Contacts -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <i class="fas fa-users"></i>
+                            <h3>Ready Contacts</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="contacts-count" id="contacts-count">0 contacts will be notified</p>
+                            <div id="ready-contacts-list" class="ready-contacts">
+                                <p class="no-contacts">No emergency contacts added. Go to Contacts tab to add them.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contacts Tab -->
+            <div id="contacts-tab" class="tab-panel">
+                <div class="contacts-card">
+                    <div class="card-header">
+                        <h3>Emergency Contacts</h3>
+                        <button class="add-contact-btn" onclick="openAddContactModal()">
+                            <i class="fas fa-plus"></i>
+                            Add Contact
+                        </button>
+                    </div>
+                    <div class="card-content">
+                        <div id="contacts-list" class="contacts-list">
+                            <p class="no-contacts">No emergency contacts added yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-panel">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h3>App Settings</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="info-box">
+                            <h4>About This App</h4>
+                            <p>This is a women's safety SOS app. In a real implementation, you would need:</p>
+                            <ul>
+                                <li>SMS/messaging service integration</li>
+                                <li>Real-time location tracking</li>
+                                <li>Emergency services integration</li>
+                                <li>User authentication and data security</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="warning-box">
+                            <h4>Privacy & Security</h4>
+                            <p>Your location data is only stored locally on your device and is only shared when you press the emergency button.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Contact Modal -->
+    <div id="add-contact-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeAddContactModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Emergency Contact</h3>
+                <button class="modal-close" onclick="closeAddContactModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="add-contact-form" class="modal-body">
+                <div class="form-group">
+                    <label for="contact-name">Name</label>
+                    <input type="text" id="contact-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-phone">Phone Number</label>
+                    <input type="tel" id="contact-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-relationship">Relationship</label>
+                    <select id="contact-relationship" required>
+                        <option value="">Select relationship</option>
+                        <option value="Parent">Parent</option>
+                        <option value="Spouse">Spouse</option>
+                        <option value="Sibling">Sibling</option>
+                        <option value="Friend">Friend</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeAddContactModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Contact</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <div class="toast-content">
+            <i class="toast-icon"></i>
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
